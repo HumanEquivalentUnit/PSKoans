@@ -22,7 +22,8 @@ param()
         1. Begin {}
             All cmdlets in the pipeline, in sequence, execute their begin{} blocks. Input from
             directly-provided parameters can be used, but no input passed to pipeline parameters
-            is processed in this step.
+            is processed in this step. Output can be generated, and will be processed before any
+            other <process{}> steps.
         2. Process {}
             The first statement or command is evaluated and the output passed into the <process{}>
             block of the next function. The pipeline sequence executes once for each object sent in,
@@ -34,7 +35,8 @@ param()
         3. End {}
             As with begin, input passed to pipeline parameters is not typically available in this
             step. However, should the author wish to handle all input in bulk, it can be done by
-            using the automatic $Input variable in the <end{}> step.
+            using the automatic $Input variable in the <end{}> step. Output may still be emitted,
+            and will be processed by the next pipeline after all precending <process{}> steps.
 
         Visualizing this process looks something like this:
 
@@ -44,20 +46,24 @@ param()
             <Step 1>
                 <Command1:begin{}>
                 <Command2:begin{}>
+
             <Step 2>
                 <Command1:process{1}>
                 <Command2:process{^1}>
                     <Output:{^^1}>
+
                 <Command1:process{2}>
                 <Command2:process{^2}>
                     <Output:{^^2}>
+
                 <Command1:process{3}>
                 <Command2:process{^3}>
                     <Output:{^^3}>
+
             <Step 3>
                 <Command1:end{}>
                 <Command2:end{}>
 
-            <TotalOutput:{^^1, ^^2, ^^3}>
+            <Total Output:{^^1, ^^2, ^^3}>
 
 #>
