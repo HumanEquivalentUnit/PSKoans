@@ -1,7 +1,6 @@
 using module PSKoans
 [Koan()]
 param()
-
 <#
     Pipelines
 
@@ -10,7 +9,10 @@ param()
     logic in your functions, and not every cmdlet does.
 
     However, the vast majority of cmdlets do have pipeline-ready capabilities, and
-    many module functions will often also implement pipeline logic.
+    many module functions will often also implement pipeline logic. The use of the
+    pipeline logic as standard procedure allows cmdlets to remain small and work as
+    interchangeable pieces in a larger pipeline, instead of having a large and less
+    flexible function that is difficult to maintain, test, and work with.
 
     The pipeline is a feature that is used to streamline passing objects around, and
     as a part of its processing, it will break up arrays and other collections in order
@@ -19,14 +21,15 @@ param()
     The pipeline operates in stages:
 
         1. Begin {}
-            Each command executes its begin{} blocks in order. Direct input from parameters can
+            Each command executes its <begin{}> blocks in order. Direct input from parameters can
             be used, but no input passed to pipeline parameters is processed in this step.
             Output can be generated, which will be processed before any other <process{}> steps.
         2. Process {}
-            The first statement or command is executed, and the output give to the <process{}>
-            block of the next command in line. The pipeline sequence executes once for each
-            object, and output from one function is used as input for the next. Each function
-            in turn takes the input, does its job, and provides any output to the next command.
+            The first statement or command is executed, and the output given one item at a time
+            to the <process{}> block of the next command in line. The pipeline sequence executes
+            once for each object in the pipe, and output from one function is used as input for
+            the next. Each function in turn takes the input, does its job, and provides any output
+            to the next command.
         3. End {}
             As with begin, input passed to pipeline parameters is not typically available in this
             step. However, should the author wish to handle all input in bulk, it can be done by
