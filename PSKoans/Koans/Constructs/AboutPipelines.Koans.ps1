@@ -44,7 +44,6 @@ param()
             <Step 1>
                 <Command1:begin{}>
                 <Command2:begin{}>
-
             <Step 2>
                 <Command1:process{1}>
                 <Command2:process{^1}>
@@ -55,7 +54,6 @@ param()
                 <Command1:process{3}>
                 <Command2:process{^3}>
                     <Output:{^^3}>
-
             <Step 3>
                 <Command1:end{}>
                 <Command2:end{}>
