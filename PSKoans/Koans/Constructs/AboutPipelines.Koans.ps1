@@ -15,34 +15,51 @@ param()
     The pipeline is a feature that is used to streamline passing objects around, and
     as a basic tenet of its functionality, it by default enumerates (i.e., breaks apart)
     collections in order to be able to pass objects around one at a time and operate on
-    each in their turn. It functions somewhat like this:
+    each in their turn.
 
-        $Collection = @( 1, 2, 3, 4, 5 )
+    The pipeline operates in stages:
 
-        $Collection | <Function1> | <Function2> | <Function 3>
+        1. Begin {}
+            All cmdlets in the pipeline, in sequence, execute their begin{} blocks. Input from
+            directly-provided parameters can be used, but no input passed to pipeline parameters
+            is processed in this step.
+        2. Process {}
+            The first statement or command is evaluated and the output passed into the <process{}>
+            block of the next function. The pipeline sequence executes once for each object sent in,
+            as output is emitted from one function to the next. Each function in turn takes its
+            input, and provides any output to the next function in the pipeline.
+            At the end of the pipeline, the resulting objects, if any, are collected and packaged as
+            an ArrayList for display or to be stored. If they are being stored, they are converted
+            into a standard [object[]] array.
+        3. End {}
+            As with begin, input passed to pipeline parameters is not typically available in this
+            step. However, should the author wish to handle all input in bulk, it can be done by
+            using the automatic $Input variable in the <end{}> step.
 
-        Step 1:----- All cmdlets in the pipeline run their begin{} blocks in sequence
-            @( 1, 2, 3, 4, 5 ) | <begin{}> | <begin{}> | <begin{}>
+        Visualizing this process looks something like this:
 
-        Step 2:----- Function1 executes its process{} block with the first item as input
-            @( 2, 3, 4, 5 ) | <process{1}> | <waiting> | <waiting>
+            Pipeline:
+                @(1, 2, 3) | <Command1> | <Command2>
 
-        Step 3:----- Function1 provides output to Function2's input, and takes the next item
-            @( 3, 4, 5 ) | <process{2}> | <process{>1}> | <waiting>
+            <Step 1>
+                <Command1:begin{}>
+                <Command2:begin{}>
 
-        Step 4:----- Functions complete processing, passing output down, Function1 takes next item
-            @( 4, 5 ) | <process{3}> | <process{>2}> | <process{>>1}>
+            <Step 2>
+                <Command1:process{1}>
+                <Command2:process{^1}>
+                    <Output:{^^1}>
+                <Command1:process{2}>
+                <Command2:process{^2}>
+                    <Output:{^^2}>
+                <Command1:process{3}>
+                <Command2:process{^3}>
+                    <Output:{^^3}>
 
-        Step 5:----- Output is passed down, 'falling off' the pipe into the output stream
-            @( 5 ) | <process{4}> | <process{>3}> | <process{>>2}> ==>> ( >>>1 )
+            <Step 3>
+                <Command1:end{}>
+                <Command2:end{}>
 
-        This continues until all available input has been processed. As input runs out, each cmdlet in
-        the pipeline executes its end{} block in sequence.
-
-        Step 6:----- The resulting output is stored internally as an ArrayList until either sent to display or stored.
-            <end{}> | <end{}> | <end{}>     ==>> @( >>>1, >>>2, >>>3, >>>4, >>>5 )
-
-        Step 7:----- The pipeline is terminated.
-
+            <TotalOutput:{^^1, ^^2, ^^3}>
 
 #>
